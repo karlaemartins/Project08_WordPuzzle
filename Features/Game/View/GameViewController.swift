@@ -10,6 +10,7 @@ import UIKit
 final class GameViewController: UIViewController {
     
     private let viewModel = GameViewModel()
+    private let clearButton = UIButton(type: .system)
     
     private let cluesLabel = UILabel()
     private let answersLabel = UILabel()
@@ -27,8 +28,8 @@ final class GameViewController: UIViewController {
         super.viewDidLoad()
         
         setupViews()
+        setupClearButton()
         setupConstraints()
-        
         bindViewModel()
         viewModel.loadLevel()
     }
@@ -98,6 +99,15 @@ final class GameViewController: UIViewController {
             }
         }
     }
+    
+    private func setupClearButton() {
+        clearButton.translatesAutoresizingMaskIntoConstraints = false
+        clearButton.setTitle("CLEAR", for: .normal)
+        
+        view.addSubview(clearButton)
+        
+        clearButton.addTarget(self, action: #selector(clearTapped), for: .touchUpInside)
+    }
 
     private func setupConstraints() {
         NSLayoutConstraint.activate([
@@ -124,6 +134,10 @@ final class GameViewController: UIViewController {
             buttonsView.heightAnchor.constraint(equalToConstant: 320),
             buttonsView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             buttonsView.topAnchor.constraint(equalTo: currentAnswerLabel.bottomAnchor, constant: 20),
+            
+            clearButton.centerXAnchor.constraint(equalTo: currentAnswerLabel.centerXAnchor, constant: 100),
+            clearButton.topAnchor.constraint(equalTo: buttonsView.bottomAnchor, constant: 20),
+            clearButton.heightAnchor.constraint(equalToConstant: 44),
         ])
     }
     
@@ -149,5 +163,13 @@ final class GameViewController: UIViewController {
         
         viewModel.addLetter(title)
         sender.isHidden = true
+    }
+    
+    @objc private func clearTapped(_ sender: UIButton) {
+        viewModel.clearAnswer()
+        
+        for button in letterButtons {
+            button.isHidden = false
+        }
     }
 }
