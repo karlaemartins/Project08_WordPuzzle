@@ -8,9 +8,10 @@
 import Foundation
 
 enum SubmitResult {
-    case correct(position: Int)
+    case correct(position: Int, isLevelComplete: Bool)
     case wrong
     case alreadySolved
+    case levelCompleted
 }
 
 final class GameViewModel {
@@ -57,8 +58,10 @@ final class GameViewModel {
         selectedLetters.removeAll()
         currentAnswer = ""
         
+        let isComplete = solvedIndexes.count == solutions.count
+        
         onUpdate?()
-        return .correct(position: position)
+        return .correct(position: position, isLevelComplete: isComplete)
     }
     
     func updateAnswer(at position: Int) {

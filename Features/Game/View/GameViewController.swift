@@ -197,6 +197,32 @@ final class GameViewController: UIViewController {
         present(alert, animated: true)
     }
     
+    private func showLevelUpAlert() {
+        let alert = UIAlertController(
+            title: "Well done!",
+            message: "Ready for the next level?",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "Let's go!", style: .default) { [weak self] _ in
+            self?.goToNextLevel()
+        })
+        
+        present(alert, animated: true)
+    }
+    
+    private func goToNextLevel() {
+        viewModel.level += 1
+        viewModel.loadLevel()
+        
+        for button in letterButtons {
+            button.isHidden = false
+            button.setTitle("", for: .normal)
+        }
+        
+        viewModel.onUpdate?()
+    }
+    
     @objc private func letterTapped(_ sender: UIButton) {
         guard let title = sender.titleLabel?.text else { return }
         
@@ -216,12 +242,20 @@ final class GameViewController: UIViewController {
         let result = viewModel.submitAnswer()
         
         switch result {
-        case .correct(let position):
+            
+        case .levelCompleted:
+            showLevelUpAlert()
+        case .correct(let position, let isLevelComplete):
+            
             viewModel.updateAnswer(at: position)
             viewModel.onUpdate?()
             
             for button in letterButtons {
                 button.isHidden = false
+            }
+            
+            if isLevelComplete {
+                showLevelUpAlert()
             }
             
         case .wrong:

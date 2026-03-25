@@ -10,7 +10,7 @@
 		1130C96D2F6D649000F7DD58 /* GameViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1130C96C2F6D649000F7DD58 /* GameViewModel.swift */; };
 		1130C96F2F72D86300F7DD58 /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1130C96E2F72D86300F7DD58 /* GameViewController.swift */; };
 		1130C9762F73217A00F7DD58 /* level1.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1130C9752F73217A00F7DD58 /* level1.txt */; };
-		1130C97A2F7322A300F7DD58 /* level2 2.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1130C9792F7322A300F7DD58 /* level2 2.txt */; };
+		1130C97E2F743BA100F7DD58 /* level2.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1130C97D2F743BA100F7DD58 /* level2.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -18,7 +18,7 @@
 		1130C96C2F6D649000F7DD58 /* GameViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewModel.swift; sourceTree = "<group>"; };
 		1130C96E2F72D86300F7DD58 /* GameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
 		1130C9752F73217A00F7DD58 /* level1.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = level1.txt; sourceTree = "<group>"; };
-		1130C9792F7322A300F7DD58 /* level2 2.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "level2 2.txt"; sourceTree = "<group>"; };
+		1130C97D2F743BA100F7DD58 /* level2.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = level2.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -108,7 +108,7 @@
 			isa = PBXGroup;
 			children = (
 				1130C9752F73217A00F7DD58 /* level1.txt */,
-				1130C9792F7322A300F7DD58 /* level2 2.txt */,
+				1130C97D2F743BA100F7DD58 /* level2.txt */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -177,7 +177,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1130C97A2F7322A300F7DD58 /* level2 2.txt in Resources */,
+				1130C97E2F743BA100F7DD58 /* level2.txt in Resources */,
 				1130C9762F73217A00F7DD58 /* level1.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
