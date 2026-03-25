@@ -9,7 +9,10 @@ import UIKit
 
 final class GameViewController: UIViewController {
     
+    // MARK: - Properties
+    
     private let viewModel = GameViewModel()
+    
     private let clearButton = UIButton(type: .system)
     private let submitButton = UIButton(type: .system)
     
@@ -17,9 +20,13 @@ final class GameViewController: UIViewController {
     private let answersLabel = UILabel()
     private let currentAnswerLabel = UILabel()
     private let scoreLabel = UILabel()
+    
     private var letterButtons: [UIButton] = []
     private let buttonsView = UIView()
 
+    
+    // MARK: - Lifecycle
+    
     override func loadView() {
         view = UIView()
         view.backgroundColor = .white
@@ -29,12 +36,15 @@ final class GameViewController: UIViewController {
         super.viewDidLoad()
         
         setupViews()
-        setupClearButton()
-        setupSubmitButton()
+        setupActions()
         setupConstraints()
         bindViewModel()
+        
         viewModel.loadLevel()
     }
+    
+    
+    // MARK: - Setup
     
     private func setupViews() {
         setupScoreLabel()
@@ -42,13 +52,23 @@ final class GameViewController: UIViewController {
         setupAnswersLabel()
         setupCurrentAnswerLabel()
         setupLetterButtons()
+        
+        view.addSubview(clearButton)
+        view.addSubview(submitButton)
     }
+    
+    private func setupActions() {
+        setupClearButton()
+        setupSubmitButton()
+    }
+    
+    
+    // MARK: - UI Setup
     
     private func setupScoreLabel() {
         scoreLabel.translatesAutoresizingMaskIntoConstraints = false
         scoreLabel.textAlignment = .right
         scoreLabel.text = "Score: 0"
-        
         view.addSubview(scoreLabel)
     }
     
@@ -56,7 +76,6 @@ final class GameViewController: UIViewController {
         cluesLabel.translatesAutoresizingMaskIntoConstraints = false
         cluesLabel.font = UIFont.systemFont(ofSize: 24)
         cluesLabel.numberOfLines = 0
-        
         view.addSubview(cluesLabel)
     }
     
@@ -65,7 +84,6 @@ final class GameViewController: UIViewController {
         answersLabel.font = UIFont.systemFont(ofSize: 24)
         answersLabel.numberOfLines = 0
         answersLabel.textAlignment = .right
-        
         view.addSubview(answersLabel)
     }
     
@@ -73,8 +91,6 @@ final class GameViewController: UIViewController {
         currentAnswerLabel.translatesAutoresizingMaskIntoConstraints = false
         currentAnswerLabel.textAlignment = .center
         currentAnswerLabel.font = UIFont.systemFont(ofSize: 44)
-        currentAnswerLabel.text = ""
-        
         view.addSubview(currentAnswerLabel)
     }
     
@@ -89,7 +105,6 @@ final class GameViewController: UIViewController {
             for col in 0..<5 {
                 let button = UIButton(type: .system)
                 button.titleLabel?.font = UIFont.systemFont(ofSize: 36)
-                button.setTitle("AAA", for: .normal)
                 
                 let frame = CGRect(x: col * width, y: row * height, width: width, height: height)
                 button.frame = frame
@@ -105,21 +120,18 @@ final class GameViewController: UIViewController {
     private func setupClearButton() {
         clearButton.translatesAutoresizingMaskIntoConstraints = false
         clearButton.setTitle("CLEAR", for: .normal)
-        
-        view.addSubview(clearButton)
-        
         clearButton.addTarget(self, action: #selector(clearTapped), for: .touchUpInside)
     }
     
     private func setupSubmitButton() {
         submitButton.translatesAutoresizingMaskIntoConstraints = false
         submitButton.setTitle("SUBMIT", for: .normal)
-        
-        view.addSubview(submitButton)
-        
         submitButton.addTarget(self, action: #selector(submitTapped), for: .touchUpInside)
     }
 
+    
+    // MARK: - Constraints
+    
     private func setupConstraints() {
         NSLayoutConstraint.activate([
             
@@ -140,21 +152,23 @@ final class GameViewController: UIViewController {
             currentAnswerLabel.topAnchor.constraint(equalTo: cluesLabel.bottomAnchor, constant: 20),
             currentAnswerLabel.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5),
             
-            
             buttonsView.widthAnchor.constraint(equalToConstant: 750),
             buttonsView.heightAnchor.constraint(equalToConstant: 320),
             buttonsView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             buttonsView.topAnchor.constraint(equalTo: currentAnswerLabel.bottomAnchor, constant: 20),
             
-            clearButton.centerXAnchor.constraint(equalTo: currentAnswerLabel.centerXAnchor, constant: 100),
-            clearButton.topAnchor.constraint(equalTo: buttonsView.bottomAnchor, constant: 20),
-            clearButton.heightAnchor.constraint(equalToConstant: 44),
-            
             submitButton.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: -100),
             submitButton.topAnchor.constraint(equalTo: buttonsView.bottomAnchor, constant: 20),
             submitButton.heightAnchor.constraint(equalToConstant: 44),
+            
+            clearButton.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: 100),
+            clearButton.topAnchor.constraint(equalTo: buttonsView.bottomAnchor, constant: 20),
+            clearButton.heightAnchor.constraint(equalToConstant: 44),
         ])
     }
+    
+    
+    // MARK: - Binding
     
     private func bindViewModel() {
         viewModel.onUpdate = { [weak self] in
@@ -173,28 +187,50 @@ final class GameViewController: UIViewController {
         }
     }
     
+    
+    // MARK: - Actions
+    
+    @objc private func letterTapped(_ sender: UIButton) {
+        guard let title = sender.titleLabel?.text else { return }
+        viewModel.addLetter(title)
+        sender.isHidden = true
+    }
+    
+    @objc private func clearTapped(_ sender: UIButton) {
+        viewModel.clearAnswer()
+        letterButtons.forEach { $0.isHidden = false }
+    }
+    
+    @objc private func submitTapped(_ sender: UIButton) {
+        let result = viewModel.submitAnswer()
+        
+        switch result {
+            
+        case .correct(let position, let isLevelComplete):
+            viewModel.updateAnswer(at: position)
+            letterButtons.forEach { $0.isHidden = false }
+            
+            if isLevelComplete {
+                showLevelUpAlert()
+            }
+            
+        case .wrong:
+            showErrorAlert()
+            
+        case .alreadySolved:
+            showAlreadySolvedAlert()
+        }
+    }
+    
+    
+    // MARK: - Alerts
+    
     private func showErrorAlert() {
-        let alert = UIAlertController(
-            title: "Oops!",
-            message: "Wrong answer, try again.",
-            preferredStyle: .alert
-        )
-        
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        
-        present(alert, animated: true)
+        showAlert(title: "Oops!", message: "Wrong answer, try again.")
     }
     
     private func showAlreadySolvedAlert() {
-        let alert = UIAlertController(
-            title: "Already solved",
-            message: "You already found this word.",
-            preferredStyle: .alert
-        )
-        
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
-        
-        present(alert, animated: true)
+        showAlert(title: "Already solved", message: "You already found this word.")
     }
     
     private func showLevelUpAlert() {
@@ -211,58 +247,17 @@ final class GameViewController: UIViewController {
         present(alert, animated: true)
     }
     
+    private func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+    
+    
+    // MARK: - Navigation
+    
     private func goToNextLevel() {
-        viewModel.level += 1
-        viewModel.loadLevel()
-        
-        for button in letterButtons {
-            button.isHidden = false
-            button.setTitle("", for: .normal)
-        }
-        
-        viewModel.onUpdate?()
-    }
-    
-    @objc private func letterTapped(_ sender: UIButton) {
-        guard let title = sender.titleLabel?.text else { return }
-        
-        viewModel.addLetter(title)
-        sender.isHidden = true
-    }
-    
-    @objc private func clearTapped(_ sender: UIButton) {
-        viewModel.clearAnswer()
-        
-        for button in letterButtons {
-            button.isHidden = false
-        }
-    }
-    
-    @objc private func submitTapped(_ sender: UIButton) {
-        let result = viewModel.submitAnswer()
-        
-        switch result {
-            
-        case .levelCompleted:
-            showLevelUpAlert()
-        case .correct(let position, let isLevelComplete):
-            
-            viewModel.updateAnswer(at: position)
-            viewModel.onUpdate?()
-            
-            for button in letterButtons {
-                button.isHidden = false
-            }
-            
-            if isLevelComplete {
-                showLevelUpAlert()
-            }
-            
-        case .wrong:
-            showErrorAlert()
-            
-        case .alreadySolved:
-            showAlreadySolvedAlert()
-        }
+        viewModel.goToNextLevel()
+        letterButtons.forEach { $0.isHidden = false }
     }
 }
