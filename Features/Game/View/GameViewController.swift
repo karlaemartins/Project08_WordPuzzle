@@ -11,6 +11,7 @@ final class GameViewController: UIViewController {
     
     private let viewModel = GameViewModel()
     private let clearButton = UIButton(type: .system)
+    private let submitButton = UIButton(type: .system)
     
     private let cluesLabel = UILabel()
     private let answersLabel = UILabel()
@@ -29,6 +30,7 @@ final class GameViewController: UIViewController {
         
         setupViews()
         setupClearButton()
+        setupSubmitButton()
         setupConstraints()
         bindViewModel()
         viewModel.loadLevel()
@@ -108,6 +110,15 @@ final class GameViewController: UIViewController {
         
         clearButton.addTarget(self, action: #selector(clearTapped), for: .touchUpInside)
     }
+    
+    private func setupSubmitButton() {
+        submitButton.translatesAutoresizingMaskIntoConstraints = false
+        submitButton.setTitle("SUBMIT", for: .normal)
+        
+        view.addSubview(submitButton)
+        
+        submitButton.addTarget(self, action: #selector(submitTapped), for: .touchUpInside)
+    }
 
     private func setupConstraints() {
         NSLayoutConstraint.activate([
@@ -138,6 +149,10 @@ final class GameViewController: UIViewController {
             clearButton.centerXAnchor.constraint(equalTo: currentAnswerLabel.centerXAnchor, constant: 100),
             clearButton.topAnchor.constraint(equalTo: buttonsView.bottomAnchor, constant: 20),
             clearButton.heightAnchor.constraint(equalToConstant: 44),
+            
+            submitButton.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: -100),
+            submitButton.topAnchor.constraint(equalTo: buttonsView.bottomAnchor, constant: 20),
+            submitButton.heightAnchor.constraint(equalToConstant: 44),
         ])
     }
     
@@ -158,6 +173,30 @@ final class GameViewController: UIViewController {
         }
     }
     
+    private func showErrorAlert() {
+        let alert = UIAlertController(
+            title: "Oops!",
+            message: "Wrong answer, try again.",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        
+        present(alert, animated: true)
+    }
+    
+    private func showAlreadySolvedAlert() {
+        let alert = UIAlertController(
+            title: "Already solved",
+            message: "You already found this word.",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        
+        present(alert, animated: true)
+    }
+    
     @objc private func letterTapped(_ sender: UIButton) {
         guard let title = sender.titleLabel?.text else { return }
         
@@ -170,6 +209,26 @@ final class GameViewController: UIViewController {
         
         for button in letterButtons {
             button.isHidden = false
+        }
+    }
+    
+    @objc private func submitTapped(_ sender: UIButton) {
+        let result = viewModel.submitAnswer()
+        
+        switch result {
+        case .correct(let position):
+            viewModel.updateAnswer(at: position)
+            viewModel.onUpdate?()
+            
+            for button in letterButtons {
+                button.isHidden = false
+            }
+            
+        case .wrong:
+            showErrorAlert()
+            
+        case .alreadySolved:
+            showAlreadySolvedAlert()
         }
     }
 }
